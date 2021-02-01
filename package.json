@@ -1,0 +1,23 @@
+{
+  "name": "asynctx",
+  "version": "0.0.0",
+  "description": "Node.js context shared between related asynchronous resources",
+  "author": "Florent Dubois <florent.dubois@devaddict.io>",
+  "license": "MIT",
+  "keywords": [
+    "async",
+    "context"
+  ],
+  "homepage": "https://github.com/fldubois/asynctx#readme",
+  "bugs": {
+    "url": "https://github.com/fldubois/asynctx/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fldubois/asynctx.git"
+  },
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
