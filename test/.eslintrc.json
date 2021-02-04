@@ -1,0 +1,15 @@
+{
+  "env": {
+    "mocha": true
+  },
+
+  "rules": {
+    // Stylistic Issues
+
+    "padded-blocks": ["off"], // require or disallow padding within blocks
+
+    // ECMAScript 6
+
+    "prefer-arrow-callback": ["off"] // require using arrow functions for callbacks
+  }
+}
