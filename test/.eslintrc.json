@@ -6,7 +6,9 @@
   "rules": {
     // Stylistic Issues
 
-    "padded-blocks": ["off"], // require or disallow padding within blocks
+    "no-underscore-dangle": ["warn", {"allow": ["__get__", "__set__"]}], // disallow dangling underscores in identifiers
+    "padded-blocks":        ["off"],                                     // require or disallow padding within blocks
+
 
     // ECMAScript 6
 
