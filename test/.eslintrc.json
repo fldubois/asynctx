@@ -9,7 +9,6 @@
     "no-underscore-dangle": ["warn", {"allow": ["__get__", "__set__"]}], // disallow dangling underscores in identifiers
     "padded-blocks":        ["off"],                                     // require or disallow padding within blocks
 
-
     // ECMAScript 6
 
     "prefer-arrow-callback": ["off"] // require using arrow functions for callbacks
