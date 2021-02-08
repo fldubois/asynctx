@@ -15,8 +15,8 @@ describe('asynctx', function () {
 
   const key = chance.word();
 
-  it('should expose get and set functions', function () {
-    expect(ctx).to.respondTo('get', 'set');
+  it('should expose context manipulation functions', function () {
+    expect(ctx).to.respondTo('get', 'set', 'fork');
   });
 
   it('should propagate context between async resources', function (done) {
@@ -61,6 +61,36 @@ describe('asynctx', function () {
       ctx.set(key, value);
 
       expect(contexts.get(executionAsyncId())).to.have.a.property(key, value);
+    });
+
+  });
+
+  describe('fork()', function () {
+
+    it('should fork the current context', function (done) {
+      const value = chance.word();
+
+      const parent = contexts.get(executionAsyncId());
+
+      parent[key] = value;
+
+      setImmediate(() => {
+        ctx.fork();
+
+        const current = contexts.get(executionAsyncId());
+
+        expect(current).to.not.equal(parent);
+        expect(current).to.have.a.property(key, value);
+      });
+
+      setTimeout(() => {
+        const current = contexts.get(executionAsyncId());
+
+        expect(current).to.equal(parent);
+        expect(current).to.have.a.property(key, value);
+
+        done();
+      }, 1);
     });
 
   });
