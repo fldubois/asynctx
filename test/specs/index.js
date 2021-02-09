@@ -12,16 +12,25 @@ const ctx = rewire('../../lib');
 const contexts = ctx.__get__('contexts');
 
 describe('asynctx', function () {
+  let key   = null;
+  let value = null;
 
-  const key = chance.word();
+  beforeEach('clear contexts', function () {
+    const current = contexts.get(executionAsyncId());
+
+    Object.keys(current).forEach((k) => delete current[k]);
+  });
+
+  beforeEach('initialize fixtures', function () {
+    key   = chance.word();
+    value = chance.word();
+  });
 
   it('should expose context manipulation functions', function () {
     expect(ctx).to.respondTo('get', 'set', 'fork');
   });
 
   it('should propagate context between async resources', function (done) {
-    const value = chance.word();
-
     setImmediate(() => {
       contexts.get(executionAsyncId())[key] = value;
     });
@@ -36,16 +45,12 @@ describe('asynctx', function () {
   describe('get()', function () {
 
     it('should retrieve complete context', function () {
-      const value = chance.word();
-
       contexts.get(executionAsyncId())[key] = value;
 
       expect(ctx.get()).to.deep.equal({[key]: value});
     });
 
     it('should retrieve single value', function () {
-      const value = chance.word();
-
       contexts.get(executionAsyncId())[key] = value;
 
       expect(ctx.get(key)).to.equal(value);
@@ -56,8 +61,6 @@ describe('asynctx', function () {
   describe('set()', function () {
 
     it('should set context key to specified value', function () {
-      const value = chance.word();
-
       ctx.set(key, value);
 
       expect(contexts.get(executionAsyncId())).to.have.a.property(key, value);
@@ -68,8 +71,6 @@ describe('asynctx', function () {
   describe('fork()', function () {
 
     it('should fork the current context', function (done) {
-      const value = chance.word();
-
       const parent = contexts.get(executionAsyncId());
 
       parent[key] = value;
