@@ -15,10 +15,8 @@ describe('asynctx', function () {
   let key   = null;
   let value = null;
 
-  beforeEach('clear contexts', function () {
-    const current = contexts.get(executionAsyncId());
-
-    Object.keys(current).forEach((k) => delete current[k]);
+  beforeEach('clear context', function () {
+    contexts.get(executionAsyncId()).clear();
   });
 
   beforeEach('initialize fixtures', function () {
@@ -31,12 +29,14 @@ describe('asynctx', function () {
   });
 
   it('should propagate context between async resources', function (done) {
+    const parent = contexts.get(executionAsyncId());
+
     setImmediate(() => {
-      contexts.get(executionAsyncId())[key] = value;
+      expect(contexts.get(executionAsyncId())).to.equal(parent);
     });
 
     setTimeout(() => {
-      expect(contexts.get(executionAsyncId())[key]).to.equal(value);
+      expect(contexts.get(executionAsyncId())).to.equal(parent);
 
       done();
     }, 1);
@@ -44,14 +44,8 @@ describe('asynctx', function () {
 
   describe('get()', function () {
 
-    it('should retrieve complete context', function () {
-      contexts.get(executionAsyncId())[key] = value;
-
-      expect(ctx.get()).to.deep.equal({[key]: value});
-    });
-
-    it('should retrieve single value', function () {
-      contexts.get(executionAsyncId())[key] = value;
+    it('should retrieve value', function () {
+      contexts.get(executionAsyncId()).set(key, value);
 
       expect(ctx.get(key)).to.equal(value);
     });
@@ -63,7 +57,7 @@ describe('asynctx', function () {
     it('should set context key to specified value', function () {
       ctx.set(key, value);
 
-      expect(contexts.get(executionAsyncId())).to.have.a.property(key, value);
+      expect(contexts.get(executionAsyncId()).get(key)).to.equal(value);
     });
 
   });
@@ -73,7 +67,7 @@ describe('asynctx', function () {
     it('should fork the current context', function (done) {
       const parent = contexts.get(executionAsyncId());
 
-      parent[key] = value;
+      parent.set(key, value);
 
       setImmediate(() => {
         ctx.fork();
@@ -81,14 +75,16 @@ describe('asynctx', function () {
         const current = contexts.get(executionAsyncId());
 
         expect(current).to.not.equal(parent);
-        expect(current).to.have.a.property(key, value);
+        expect(current.get(key)).to.equal(value);
+
+        current.set(key, chance.word());
       });
 
       setTimeout(() => {
         const current = contexts.get(executionAsyncId());
 
         expect(current).to.equal(parent);
-        expect(current).to.have.a.property(key, value);
+        expect(current.get(key)).to.equal(value);
 
         done();
       }, 1);
