@@ -50,6 +50,13 @@ describe('asynctx', function () {
       expect(ctx.get(key)).to.equal(value);
     });
 
+    it('should throw an error if context does not exist', function () {
+      expect(() => {
+        contexts.delete(executionAsyncId());
+        ctx.get(chance.word());
+      }).to.throw(Error, 'Context not found');
+    });
+
   });
 
   describe('set()', function () {
@@ -58,6 +65,13 @@ describe('asynctx', function () {
       ctx.set(key, value);
 
       expect(contexts.get(executionAsyncId()).get(key)).to.equal(value);
+    });
+
+    it('should throw an error if context does not exist', function () {
+      expect(() => {
+        contexts.delete(executionAsyncId());
+        ctx.set(chance.word(), chance.word());
+      }).to.throw(Error, 'Context not found');
     });
 
   });
@@ -88,6 +102,13 @@ describe('asynctx', function () {
 
         done();
       }, 1);
+    });
+
+    it('should throw an error if context does not exist', function () {
+      expect(() => {
+        contexts.delete(executionAsyncId());
+        ctx.fork();
+      }).to.throw(Error, 'Context not found');
     });
 
   });
