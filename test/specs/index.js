@@ -12,20 +12,9 @@ const ctx = rewire('../../lib');
 const contexts = ctx.__get__('contexts');
 
 describe('asynctx', function () {
-  let key   = null;
-  let value = null;
 
   beforeEach('clear context', function () {
     contexts.get(executionAsyncId()).clear();
-  });
-
-  beforeEach('initialize fixtures', function () {
-    key   = chance.word();
-    value = chance.word();
-  });
-
-  it('should expose context manipulation functions', function () {
-    expect(ctx).to.respondTo('get', 'set', 'fork');
   });
 
   it('should propagate context between async resources', function (done) {
@@ -42,44 +31,19 @@ describe('asynctx', function () {
     }, 1);
   });
 
-  describe('get()', function () {
-
-    it('should retrieve value', function () {
-      contexts.get(executionAsyncId()).set(key, value);
-
-      expect(ctx.get(key)).to.equal(value);
-    });
-
-    it('should throw an error if context does not exist', function () {
-      expect(() => {
-        contexts.delete(executionAsyncId());
-        ctx.get(chance.word());
-      }).to.throw(Error, 'Context not found');
-    });
-
-  });
-
-  describe('set()', function () {
-
-    it('should set context key to specified value', function () {
-      ctx.set(key, value);
-
-      expect(contexts.get(executionAsyncId()).get(key)).to.equal(value);
-    });
-
-    it('should throw an error if context does not exist', function () {
-      expect(() => {
-        contexts.delete(executionAsyncId());
-        ctx.set(chance.word(), chance.word());
-      }).to.throw(Error, 'Context not found');
-    });
-
+  it('should throw an error on property access if context does not exist', function () {
+    expect(() => {
+      contexts.delete(executionAsyncId());
+      Reflect.get(ctx, chance.word());
+    }).to.throw(Error, 'Context not found');
   });
 
   describe('fork()', function () {
 
     it('should fork the current context', function (done) {
       const parent = contexts.get(executionAsyncId());
+      const key    = chance.word();
+      const value  = chance.word();
 
       parent.set(key, value);
 
@@ -104,11 +68,108 @@ describe('asynctx', function () {
       }, 1);
     });
 
-    it('should throw an error if context does not exist', function () {
-      expect(() => {
-        contexts.delete(executionAsyncId());
-        ctx.fork();
-      }).to.throw(Error, 'Context not found');
+  });
+
+  describe('Map properties', function () {
+
+    it('size', function () {
+      expect(ctx.size).to.be.a('number').that.equal(0);
+
+      const current = contexts.get(executionAsyncId());
+
+      for (let i = 0; i < 5; i++) {
+        current.set(chance.word(), chance.word());
+      }
+
+      expect(ctx.size).to.be.a('number').that.equal(5);
+    });
+
+    it('[@@toStringTag]', function () {
+      expect(ctx[Symbol.toStringTag]).to.equal('Map');
+    });
+
+  });
+
+  describe('Map methods', function () {
+    let current = null;
+    let entries = null;
+
+    beforeEach('initialize fixtures', function () {
+      current = contexts.get(executionAsyncId());
+      entries = chance.n(() => [chance.word(), chance.word()], 5);
+
+      for (const [key, value] of entries) {
+        current.set(key, value);
+      }
+    });
+
+    it('clear()', function () {
+      expect(current.size).to.equal(5);
+
+      ctx.clear();
+
+      expect(current.size).to.equal(0);
+    });
+
+    it('delete()', function () {
+      const [[key, value]] = entries;
+
+      expect(current.get(key)).to.equal(value);
+
+      ctx.delete(key);
+
+      expect(current.get(key)).to.be.an('undefined');
+    });
+
+    it('entries()', function () {
+      expect(Array.from(ctx.entries())).to.deep.equal(entries);
+    });
+
+    it('forEach()', function () {
+      ctx.forEach((value, key) => expect([key, value]).to.deep.equal(entries.shift()));
+
+      expect(entries).to.have.a.lengthOf(0);
+    });
+
+    it('get()', function () {
+      const [[key, value]] = entries;
+
+      expect(ctx.get(key)).to.equal(value);
+    });
+
+    it('has()', function () {
+      const key = chance.word();
+
+      expect(ctx.has(key)).to.equal(false);
+
+      current.set(key, chance.word());
+
+      expect(ctx.has(key)).to.equal(true);
+    });
+
+    it('keys()', function () {
+      const keys = entries.map(([key]) => key);
+
+      expect(Array.from(ctx.keys())).to.deep.equal(keys);
+    });
+
+    it('set()', function () {
+      const key   = chance.word();
+      const value = chance.word();
+
+      ctx.set(key, value);
+
+      expect(current.get(key)).to.equal(value);
+    });
+
+    it('values()', function () {
+      const values = entries.map(([, value]) => value);
+
+      expect(Array.from(ctx.values())).to.deep.equal(values);
+    });
+
+    it('[@@iterator]()', function () {
+      expect(Array.from(ctx)).to.deep.equal(entries);
     });
 
   });

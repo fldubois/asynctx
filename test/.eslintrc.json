@@ -4,6 +4,10 @@
   },
 
   "rules": {
+    // Best Practices
+
+    "no-magic-numbers": ["off"], // disallow magic numbers
+
     // Stylistic Issues
 
     "no-underscore-dangle": ["warn", {"allow": ["__get__", "__set__"]}], // disallow dangling underscores in identifiers
