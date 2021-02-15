@@ -55,13 +55,6 @@ describe('asynctx', function () {
     expect(Reflect.has(ctx, chance.word()), `should not respond to unknown property lookup`).to.equal(false);
   });
 
-  it('should throw an error on property lookup if context does not exist', function () {
-    expect(() => {
-      contexts.delete(executionAsyncId());
-      Reflect.has(ctx, 'fork');
-    }).to.throw(Error, 'Context not found');
-  });
-
   it('should throw an error on property access if context does not exist', function () {
     expect(() => {
       contexts.delete(executionAsyncId());
