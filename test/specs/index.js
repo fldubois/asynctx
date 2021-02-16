@@ -33,6 +33,7 @@ describe('asynctx', function () {
 
   it('should respond to custom and Map properties lookup', function () {
     const properties = [
+      'exists',
       'fork',
       'size',
       Symbol.toStringTag,
@@ -60,6 +61,20 @@ describe('asynctx', function () {
       contexts.delete(executionAsyncId());
       Reflect.get(ctx, chance.word());
     }).to.throw(Error, 'Context not found');
+  });
+
+  describe('exists()', function () {
+
+    it('should return true if the context exists', function () {
+      expect(ctx.exists()).to.equal(true);
+    });
+
+    it('should return false if the context does not exists', function () {
+      contexts.delete(executionAsyncId());
+
+      expect(ctx.exists()).to.equal(false);
+    });
+
   });
 
   describe('fork()', function () {
