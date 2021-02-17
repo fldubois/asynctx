@@ -59,7 +59,7 @@ describe('asynctx', function () {
   it('should throw an error on property access if context does not exist', function () {
     expect(() => {
       contexts.delete(executionAsyncId());
-      Reflect.get(ctx, chance.word());
+      Reflect.get(ctx, 'size');
     }).to.throw(Error, 'Context not found');
   });
 

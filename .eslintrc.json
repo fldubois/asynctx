@@ -60,7 +60,7 @@
     "accessor-pairs":               ["warn", {"setWithoutGet": true, "getWithoutSet": false}], // enforce getter and setter pairs in objects and classes
     "array-callback-return":        ["error"],                                                 // enforce return statements in callbacks of array methods
     "block-scoped-var":             ["error"],                                                 // enforce the use of variables within the scope they are defined
-    "class-methods-use-this":       ["warn"],                                                  // enforce that class methods utilize this
+    "class-methods-use-this":       ["off"],                                                   // enforce that class methods utilize this
     "complexity":                   ["error", 20],                                             // enforce a maximum cyclomatic complexity allowed in a program
     "consistent-return":            ["error"],                                                 // require return statements to either always or never specify values
     "curly":                        ["error", "all"],                                          // enforce consistent brace style for all control statements
