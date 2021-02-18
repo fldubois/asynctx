@@ -17,50 +17,40 @@ describe('asynctx', function () {
     contexts.get(executionAsyncId()).clear();
   });
 
+  it('should extend Map', function () {
+    expect(ctx).to.be.an.instanceOf(Map);
+  });
+
   it('should propagate context between async resources', function (done) {
-    const parent = contexts.get(executionAsyncId());
+    const parentId = executionAsyncId();
+    const parent   = contexts.get(parentId);
 
     setImmediate(() => {
-      expect(contexts.get(executionAsyncId())).to.equal(parent);
-    });
+      const childId = executionAsyncId();
 
-    setTimeout(() => {
-      expect(contexts.get(executionAsyncId())).to.equal(parent);
+      expect(childId).to.not.equal(parentId);
+      expect(contexts.get(childId)).to.equal(parent);
 
       done();
-    }, 1);
+    });
   });
 
-  it('should respond to custom and Map properties lookup', function () {
-    const properties = [
-      'exists',
-      'fork',
-      'size',
-      Symbol.toStringTag,
-      'clear',
-      'delete',
-      'entries',
-      'forEach',
-      'get',
-      'has',
-      'keys',
-      'set',
-      'values',
-      Symbol.iterator
-    ];
+  it('should throw an error on getter invocation if context does not exist', function () {
+    contexts.delete(executionAsyncId());
 
-    for (const property of properties) {
-      expect(Reflect.has(ctx, property), `should respond to ${property.toString()} lookup`).to.equal(true);
+    expect(() => ctx.size).to.throw(Error, 'Context not found');
+  });
+
+  it('should throw an error on method invocation if context does not exist', function () {
+    contexts.delete(executionAsyncId());
+
+    const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(ctx)).filter((name) => {
+      return !['constructor', 'exists', 'size'].includes(name);
+    });
+
+    for (const method of methods) {
+      expect(() => ctx[method]()).to.throw(Error, 'Context not found');
     }
-
-    expect(Reflect.has(ctx, chance.word()), `should not respond to unknown property lookup`).to.equal(false);
-  });
-
-  it('should throw an error on property access if context does not exist', function () {
-    expect(() => {
-      contexts.delete(executionAsyncId());
-      Reflect.get(ctx, 'size');
-    }).to.throw(Error, 'Context not found');
   });
 
   describe('exists()', function () {
