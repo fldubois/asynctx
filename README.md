@@ -2,6 +2,15 @@
 
 > Node.js context shared between related asynchronous resources
 
+## Table of contents
+
+* [Features](#features)
+* [Requirements](#requirements)
+* [Context life cycle](#context-life-cycle)
+* [Usage](#usage)
+* [API](#api)
+* [License](#license)
+
 ## Features
 
 - _Lightweight_ - Zero dependencies, less than 5 kB
@@ -30,6 +39,49 @@ setImmediate(() => { // A new context is created
     // ...
   }, 1000);
 });
+```
+
+## Usage
+
+```js
+const ctx = require('asynctx');
+
+setImmediate(() => {
+  setTimeout(() => {
+    console.log(ctx.get('foo')); // => bar
+  }, 20);
+
+  setTimeout(() => {
+    ctx.set('foo', 'bar');
+  }, 10);
+});
+```
+
+## API
+
+### Base
+
+`asynctx` extends [`Map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map).
+
+### `exists()`
+
+> Check if a context exists for the current asynchronous resource.
+
+```js
+asynctx.exists() -> boolean
+```
+
+### `fork()`
+
+> Creates a new context branch for the current asynchronous resource and its descendants.
+>
+> The parent context content will be copied into the forked context.
+> Modifications on the fork will not alter the parent context.
+>
+> Warning: contexts are shallow copied, references are shared between parent and forked contexts.
+
+```js
+asynctx.fork() -> void
 ```
 
 ## License
