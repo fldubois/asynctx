@@ -1,6 +1,6 @@
 {
   "name": "asynctx",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Node.js context shared between related asynchronous resources",
   "author": "Florent Dubois <florent.dubois@devaddict.io>",
   "license": "MIT",
